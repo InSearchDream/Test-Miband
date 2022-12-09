@@ -244,4 +244,8 @@ public abstract class SonyHeadphonesCoordinator extends AbstractBLClassicDeviceC
             }
         }
     }
+
+    public boolean preferServiceV2() {
+        return false;
+    }
 }
