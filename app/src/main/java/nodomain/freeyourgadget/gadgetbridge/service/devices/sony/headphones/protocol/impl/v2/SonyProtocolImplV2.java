@@ -110,13 +110,8 @@ public class SonyProtocolImplV2 extends SonyProtocolImplV1 {
 
     @Override
     public Request getAudioCodec() {
-        return new Request(
-                PayloadTypeV2.AUDIO_CODEC_REQUEST.getMessageType(),
-                new byte[]{
-                        PayloadTypeV2.AUDIO_CODEC_REQUEST.getCode(),
-                        (byte) 0x00
-                }
-        );
+        LOG.warn("Audio codec not implemented for V2");
+        return null;
     }
 
     @Override
@@ -325,8 +320,6 @@ public class SonyProtocolImplV2 extends SonyProtocolImplV1 {
         final PayloadTypeV2 payloadType = PayloadTypeV2.fromCode(messageType, payload[0]);
 
         switch (payloadType) {
-            case AUDIO_CODEC_NOTIFY:
-                return handleAudioCodec(payload);
             case BATTERY_LEVEL_NOTIFY:
             case BATTERY_LEVEL_REPLY:
                 return handleBattery(payload);
@@ -526,28 +519,8 @@ public class SonyProtocolImplV2 extends SonyProtocolImplV1 {
 
     @Override
     public List<? extends GBDeviceEvent> handleAudioCodec(final byte[] payload) {
-        if (payload.length != 3) {
-            LOG.warn("Unexpected payload length {}", payload.length);
-            return Collections.emptyList();
-        }
-
-        if (payload[1] != 0x03) {
-            LOG.warn("Not audio codec, ignoring");
-            return Collections.emptyList();
-        }
-
-        final AudioCodec audioCodec = AudioCodec.fromCode(payload[2]);
-        if (audioCodec == null) {
-            LOG.warn("Unable to determine audio codec from {}", GB.hexdump(payload));
-            return Collections.emptyList();
-        }
-
-        final GBDeviceEventUpdateDeviceInfo gbDeviceEventUpdateDeviceInfo = new GBDeviceEventUpdateDeviceInfo("AUDIO_CODEC: ", audioCodec.name());
-
-        final GBDeviceEventUpdatePreferences gbDeviceEventUpdatePreferences = new GBDeviceEventUpdatePreferences()
-                .withPreference(DeviceSettingsPreferenceConst.PREF_SONY_AUDIO_CODEC, audioCodec.name().toLowerCase(Locale.getDefault()));
-
-        return Arrays.asList(gbDeviceEventUpdateDeviceInfo, gbDeviceEventUpdatePreferences);
+        LOG.warn("Audio codec not implemented for V2");
+        return Collections.emptyList();
     }
 
     @Override
