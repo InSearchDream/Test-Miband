@@ -247,8 +247,8 @@ public class SonyProtocolImplV1 extends AbstractSonyProtocolImpl {
                         PayloadTypeV1.AUTOMATIC_POWER_OFF_BUTTON_MODE_SET.getCode(),
                         (byte) 0x06,
                         (byte) 0x02,
-                        config.getModeLeft().getCode(),
-                        config.getModeRight().getCode()
+                        encodeButtonMode(config.getModeLeft()),
+                        encodeButtonMode(config.getModeRight())
                 }
         );
     }
@@ -685,8 +685,8 @@ public class SonyProtocolImplV1 extends AbstractSonyProtocolImpl {
             return Collections.emptyList();
         }
 
-        final ButtonModes.Mode modeLeft = ButtonModes.Mode.fromCode(payload[3]);
-        final ButtonModes.Mode modeRight = ButtonModes.Mode.fromCode(payload[4]);
+        final ButtonModes.Mode modeLeft = decodeButtonMode(payload[3]);
+        final ButtonModes.Mode modeRight = decodeButtonMode(payload[4]);
         if (modeLeft == null || modeRight == null) {
             LOG.warn("Unknown button mode codes {}", String.format("%02x %02x", payload[3], payload[4]));
             return Collections.emptyList();
@@ -1062,5 +1062,35 @@ public class SonyProtocolImplV1 extends AbstractSonyProtocolImpl {
         }
 
         throw new IllegalArgumentException("Unknown battery type " + batteryType);
+    }
+
+    protected ButtonModes.Mode decodeButtonMode(final byte b) {
+        switch (b) {
+            case (byte) 0xff:
+                return ButtonModes.Mode.OFF;
+            case (byte) 0x00:
+                return ButtonModes.Mode.AMBIENT_SOUND_CONTROL;
+            case (byte) 0x20:
+                return ButtonModes.Mode.PLAYBACK_CONTROL;
+            case (byte) 0x10:
+                return ButtonModes.Mode.VOLUME_CONTROL;
+        }
+
+        return null;
+    }
+
+    protected byte encodeButtonMode(final ButtonModes.Mode buttonMode) {
+        switch (buttonMode) {
+            case OFF:
+                return (byte) 0xff;
+            case AMBIENT_SOUND_CONTROL:
+                return (byte) 0x00;
+            case PLAYBACK_CONTROL:
+                return (byte) 0x20;
+            case VOLUME_CONTROL:
+                return (byte) 0x10;
+        }
+
+        throw new IllegalArgumentException("Unknown button mode " + buttonMode);
     }
 }
