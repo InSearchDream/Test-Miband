@@ -632,36 +632,4 @@ public class SonyProtocolImplV2 extends SonyProtocolImplV1 {
 
         throw new IllegalArgumentException("Unknown battery type " + batteryType);
     }
-
-    @Override
-    protected ButtonModes.Mode decodeButtonMode(final byte b) {
-        switch (b) {
-            case (byte) 0xff:
-                return ButtonModes.Mode.OFF;
-            case (byte) 0x35:  // Seems to be the only one that differs from V1?
-                return ButtonModes.Mode.AMBIENT_SOUND_CONTROL;
-            case (byte) 0x20:
-                return ButtonModes.Mode.PLAYBACK_CONTROL;
-            case (byte) 0x10:
-                return ButtonModes.Mode.VOLUME_CONTROL;
-        }
-
-        return null;
-    }
-
-    @Override
-    protected byte encodeButtonMode(final ButtonModes.Mode buttonMode) {
-        switch (buttonMode) {
-            case OFF:
-                return (byte) 0xff;
-            case AMBIENT_SOUND_CONTROL:
-                return (byte) 0x35; // Seems to be the only one that differs from V1?
-            case PLAYBACK_CONTROL:
-                return (byte) 0x20;
-            case VOLUME_CONTROL:
-                return (byte) 0x10;
-        }
-
-        throw new IllegalArgumentException("Unknown button mode " + buttonMode);
-    }
 }

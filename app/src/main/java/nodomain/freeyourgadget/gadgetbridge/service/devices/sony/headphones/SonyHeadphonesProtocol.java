@@ -49,6 +49,7 @@ import nodomain.freeyourgadget.gadgetbridge.service.devices.sony.headphones.prot
 import nodomain.freeyourgadget.gadgetbridge.service.devices.sony.headphones.protocol.impl.AbstractSonyProtocolImpl;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.sony.headphones.protocol.impl.v1.SonyProtocolImplV1;
 import nodomain.freeyourgadget.gadgetbridge.service.devices.sony.headphones.protocol.impl.v2.SonyProtocolImplV2;
+import nodomain.freeyourgadget.gadgetbridge.service.devices.sony.headphones.protocol.impl.v3.SonyProtocolImplV3;
 import nodomain.freeyourgadget.gadgetbridge.service.serial.GBDeviceProtocol;
 
 public class SonyHeadphonesProtocol extends GBDeviceProtocol {
@@ -101,9 +102,21 @@ public class SonyHeadphonesProtocol extends GBDeviceProtocol {
             if (MessageType.COMMAND_1.equals(messageType) && message.getPayload()[0] == 0x01) {
                 // Init reply, set the protocol version
                 if (message.getPayload().length == 4) {
+                    // WH-1000XM3:      01:00:40:10
+                    // WF-SP800N 1.0.1: 01:00:70:00
                     protocolImpl = new SonyProtocolImplV1(getDevice());
                 } else if (message.getPayload().length == 8) {
-                    protocolImpl = new SonyProtocolImplV2(getDevice());
+                    switch (message.getPayload()[2]) {
+                        case 0x01:
+                            // WF-1000XM4 1.1.5: 01:00:01:00:00:00:00:00
+                            protocolImpl = new SonyProtocolImplV2(getDevice());
+                            break;
+                        case 0x03:
+                            // LinkBuds S 2.0.2: 01:00:03:00:00:07:00:00
+                        default:
+                            protocolImpl = new SonyProtocolImplV3(getDevice());
+                            return null;
+                    }
                 } else {
                     LOG.error("Unexpected init response payload length: {}", message.getPayload().length);
                     return null;
